@@ -1,10 +1,40 @@
+---
 apiVersion: apps/v1
-kind: Pod
+kind: Deployment
 metadata:
-  name: nginx
+  name: nginx-deployment
   labels:
     app: nginx
 spec:
-  containers:
-    - name: nginx
-      image: nginx:latest
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-deployment
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo
+  labels:
+    app: demo
+spec:
+  ports:
+  - port: 9999
+    protocol: TCP
+    targetPort: 8888
+  selector:
+    app: demo
+  type: ClusterIP
