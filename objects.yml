@@ -15,9 +15,16 @@ spec:
       labels:
         app: nginx
     spec:
+    # Run 2 containers in a pod
       containers:
         - name: nginx
           image: nginx:latest
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+        - name: container2
+          image: example/container2
           resources:
             limits:
               memory: "128Mi"
@@ -38,3 +45,34 @@ spec:
   selector:
     app: demo
   type: ClusterIP
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+ name: demo
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+ name: demo-resourcequota
+spec:
+ hard:
+  pods: "100"
+
+---
+# defualt request and limit for all containers
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+ name: demo-limitrange
+spec:
+ limits:
+ - default:
+    cpu: "500m"
+    memory: "256Mi"
+    defaultRequest:
+      cpu: "200m"
+      memory: "128Mi"
+    type: Container
